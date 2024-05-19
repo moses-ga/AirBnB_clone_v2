@@ -1,38 +1,23 @@
-#!/usr/bin/env bash
-# Sets up a web server for deployment of web_static.
+#!/usr/bin/python3
+"""
+A script that starts a Flask web application:
+"""
 
-apt-get update
-apt-get install -y nginx
+from flask import Flask
 
-mkdir -p /data/web_static/releases/test/
-mkdir -p /data/web_static/shared/
-echo "Holberton School" > /data/web_static/releases/test/index.html
-ln -sf /data/web_static/releases/test/ /data/web_static/current
+app = Flask(__name__)
 
-chown -R ubuntu /data/
-chgrp -R ubuntu /data/
 
-printf %s "server {
-    listen 80 default_server;
-    listen [::]:80 default_server;
-    add_header X-Served-By $HOSTNAME;
-    root   /var/www/html;
-    index  index.html index.htm;
+@app.route('/', strict_slashes=False)
+def hello_route():
+    """
+    Displays 'Hello HBNB!'
+    Returns:
+        str: "Hello HBNB"
+    """
+    return "Hello HBNB!"
 
-    location /hbnb_static {
-        alias /data/web_static/current;
-        index index.html index.htm;
-    }
 
-    location /redirect_me {
-        return 301 http://cuberule.com/;
-    }
+if __name__ == "__main__":
+    app.run(host="0.0.0.0", port=5000)
 
-    error_page 404 /404.html;
-    location /404 {
-      root /var/www/html;
-      internal;
-    }
-}" > /etc/nginx/sites-available/default
-
-service nginx restart
